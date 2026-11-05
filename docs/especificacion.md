@@ -1,6 +1,6 @@
 # Especificación — Sistema de reservas de laboratorio
 
-**Versión:** v1 · **Estado:** borrador para revisión humana · La evolución de este archivo se recupera con
+**Versión:** v1 · **Estado:** aprobada por el autor sin cambios (2026-11-05: S3, S4 y RN1 confirmados) · La evolución de este archivo se recupera con
 `git log -p docs/especificacion.md`.
 
 ## 1. Problema
