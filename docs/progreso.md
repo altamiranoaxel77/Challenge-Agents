@@ -114,3 +114,8 @@ Registro cronológico mantenido por el agente principal al cerrar cada etapa
 - `tools/auditoria/mutantes.py`: 1.ª corrida 8/9, 2.ª corrida **9/9 detectados**.
 - `.venv/Scripts/python -m pytest -q` → `148 passed in 131.18s`.
 - Informe: `docs/auditoria-pruebas.md`.
+
+## 2026-11-05 — Capturas reales e informe PDF (pedido del autor)
+- `tools/capturas/capturar.ps1` toma 9 capturas reales de ventanas PowerShell con PrintWindow y las guarda en `docs/capturas/`. Cada PNG se revisó a mano. Las 01, 04, 06 y 07 se volvieron a tomar: la ventana era chica y la 01 tenía una franja de color que dejaba git.
+- `tools/informe/generar_informe.py` (reportlab, `.venv-tools/`) genera `docs/informe-resolucion.pdf`, de 13 páginas. Se revisó página por página, renderizándolas a imagen.
+- README enlaza el informe, las capturas y la auditoría.

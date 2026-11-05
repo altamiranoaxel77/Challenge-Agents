@@ -83,7 +83,7 @@ def C(t): return f'<font face="{FM}" size="9">{t}</font>'
 
 
 def lista(items):
-    return ListFlowable([ListItem(P(i), leftIndent=12, value="circle") for i in items],
+    return ListFlowable([ListItem(P(i), leftIndent=12) for i in items],
                         bulletType="bullet", start="•", leftIndent=14)
 
 
@@ -302,7 +302,7 @@ def construir() -> list:
           *tabla([["Verificación", "Comando", "Resultado"],
                   ["Suite completa (tras auditoría)", ".venv/Scripts/python -m pytest -q", f"{DATOS['pruebas']} passed"],
                   ["Mutantes", ".venv/Scripts/python tools/auditoria/mutantes.py", "9/9 detectados"],
-                  ["Persistencia manual (subagente verificador)", "9 pasos, un proceso por paso (docs/verificacion.md)", "9/9 ✔ (sobre 7f502bd)"]],
+                  ["Persistencia manual (subagente verificador)", "9 pasos, un proceso por paso (docs/verificacion.md)", "9/9 OK (sobre 7f502bd)"]],
                  [0.3, 0.45, 0.25]),
           P("No se verificó: escrituras simultáneas de varios procesos, fallas físicas de disco, otros sistemas "
             "operativos.")]

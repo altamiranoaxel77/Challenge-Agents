@@ -5,6 +5,8 @@ Esta es una herramienta de consola local para **consultar disponibilidad, reserv
 El desarrollo se hizo con un agente de programación, **Claude Code 2.1.305** con el modelo `claude-opus-5-5`, y tres subagentes. El autor revisó cada paso en checkpoints.
 
 > Entrega: rama `main`. El commit entregado se identifica con `git log -1`.
+>
+> 📄 **Informe de resolución en PDF:** [docs/informe-resolucion.pdf](docs/informe-resolucion.pdf) · 📸 **Capturas de funcionamiento:** [docs/capturas/](docs/capturas/) · 🔎 **Auditoría de pruebas:** [docs/auditoria-pruebas.md](docs/auditoria-pruebas.md)
 
 ---
 
@@ -68,9 +70,10 @@ src/reservas/
   servicio.py               casos de uso: inventario, disponibilidad, reservar, cancelar, listar
   cli.py / __main__.py      interfaz de consola (python -m reservas)
   errores.py, inventario.py
-tests/                      138 pruebas pytest (CA-01..CA-16 + regresión del Episodio 3)
+tests/                      148 pruebas pytest (CA-01..CA-16, regresión del Episodio 3, dominio)
 docs/                       especificación, interfaz, agente, decisiones, verificación, progreso, plan
 CLAUDE.md, .claude/         configuración real del agente y subagentes
+tools/                      auditoría de mutantes, capturas reales, generador del informe PDF
 ```
 
 ### Decisiones técnicas
@@ -142,7 +145,10 @@ R-0002  MIC-01  2026-12-01 11:00  2026-12-01 12:00  activa  Beto Ficticio
 ```
 
 ### Verificación
-La evidencia completa está en [docs/verificacion.md](docs/verificacion.md). La ejecutó el subagente `verificador` sobre el commit `7f502bd`.
+- **Auditoría posterior de las pruebas** ([docs/auditoria-pruebas.md](docs/auditoria-pruebas.md)): las 7 verificaciones que exige la consigna tienen pruebas. Se corrigieron 3 debilidades y la prueba de mutantes (`tools/auditoria/mutantes.py`) detecta **9 de 9** defectos inyectados. La suite actual da `148 passed`.
+- **Capturas reales** de cada escenario en [docs/capturas/](docs/capturas/), como complemento visual de las pruebas.
+
+La verificación original está en [docs/verificacion.md](docs/verificacion.md). La ejecutó el subagente `verificador` sobre el commit `7f502bd`, antes de la auditoría.
 - **Pruebas automáticas:** `138 passed in 141.63s`. Cubren:
   - creación válida;
   - rechazo de superposiciones;
