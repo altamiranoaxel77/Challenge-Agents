@@ -9,7 +9,7 @@ Registro cronológico mantenido por el agente principal al cerrar cada etapa
 | 0. Preparación del agente | ✔ hecho | `chore: preparación del agente` |
 | 1. Especificación v1 | ✔ aprobada sin cambios | `docs: especificación v1` |
 | 2. Episodio 1 — implementación | ✔ hecho | `feat: implementación` |
-| 3. Episodio 2 — pruebas (redactor-pruebas) | pendiente | |
+| 3. Episodio 2 — pruebas (redactor-pruebas) | ✔ hecho (corrección aplicada) | `d76aeb4` + `fix:` |
 | 4. Episodio 3 — revisión (revisor-reglas) | pendiente | |
 | 5. Verificación (verificador) | pendiente | |
 | 6. Documentación final | pendiente | |
@@ -68,3 +68,21 @@ Registro cronológico mantenido por el agente principal al cerrar cada etapa
 
 **Pendientes**
 - Acentos en consola Windows dependen de la codificación de la terminal (observado en Git Bash: `Mult�metro`). No afecta datos (UTF-8 en SQLite/JSON).
+
+## 2026-11-05 — Etapa 3 / Episodio 2: pruebas (subagente redactor-pruebas)
+
+**Delegación**
+- Subagente lanzado con la definición `.claude/agents/redactor-pruebas.md` (vía tipo `general-purpose`, porque el subagente se creó en la misma sesión y aún no estaba registrado). Restricción: no leer `src/`, escribir solo en `tests/`.
+- Resultado informado por el subagente: 10 archivos en `tests/`, 114 pruebas, "3 failed, 111 passed", más 11 ambigüedades de la especificación.
+
+**Comprobación propia (ejecutada)**
+- `.venv/Scripts/python -m pytest -q` → `3 failed, 111 passed in 99.13s`. Coincide con el informe.
+- Causa: `Disponibilidad.conflictos` devolvía `tuple` (`()`), el contrato `docs/interfaz.md` dice `list[Reserva]`.
+
+**Decisión humana**
+- El autor eligió **corregir la implementación** (el contrato manda), sin tocar las pruebas.
+- De las ambigüedades, el autor eligió aclarar en la especificación solo "IDs tras reiniciar-datos" (→ v1.1).
+
+**Corrección y verificación**
+- `dominio.conflictos` y `Disponibilidad.conflictos` ahora son `list`.
+- `.venv/Scripts/python -m pytest -q` → `114 passed in 138.24s`.

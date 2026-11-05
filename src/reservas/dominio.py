@@ -47,7 +47,7 @@ class Disponibilidad:
     unidad: str
     inicio: datetime
     fin: datetime
-    conflictos: tuple[Reserva, ...]
+    conflictos: list[Reserva]  # contrato docs/interfaz.md (Episodio 2)
 
     @property
     def disponible(self) -> bool:
@@ -111,8 +111,8 @@ def se_superpone(a_inicio: datetime, a_fin: datetime, b_inicio: datetime, b_fin:
     return a_inicio < b_fin and b_inicio < a_fin
 
 
-def conflictos(inicio: datetime, fin: datetime, reservas) -> tuple[Reserva, ...]:
+def conflictos(inicio: datetime, fin: datetime, reservas) -> list[Reserva]:
     """Reservas que bloquean (activas) y se superponen con [inicio, fin)."""
-    return tuple(
+    return [
         r for r in reservas if r.bloquea and se_superpone(inicio, fin, r.inicio, r.fin)
-    )
+    ]
