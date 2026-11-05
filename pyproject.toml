@@ -1,0 +1,21 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "reservas-laboratorio"
+version = "1.0.0"
+description = "CLI local de reservas de unidades de laboratorio (Challenge IA)"
+requires-python = ">=3.12"
+dependencies = []
+
+[project.scripts]
+reservas = "reservas.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
+addopts = "-ra"

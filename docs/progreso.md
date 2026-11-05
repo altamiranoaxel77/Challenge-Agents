@@ -7,8 +7,8 @@ Registro cronológico mantenido por el agente principal al cerrar cada etapa
 |---|---|---|
 | -1. Plan exportado (md/docx/pdf) | ✔ hecho | ver etapa 0 |
 | 0. Preparación del agente | ✔ hecho | `chore: preparación del agente` |
-| 1. Especificación v1 | ✔ hecho, en revisión humana | `docs: especificación v1` |
-| 2. Episodio 1 — implementación | pendiente | |
+| 1. Especificación v1 | ✔ aprobada sin cambios | `docs: especificación v1` |
+| 2. Episodio 1 — implementación | ✔ hecho | `feat: implementación` |
 | 3. Episodio 2 — pruebas (redactor-pruebas) | pendiente | |
 | 4. Episodio 3 — revisión (revisor-reglas) | pendiente | |
 | 5. Verificación (verificador) | pendiente | |
@@ -42,3 +42,29 @@ Registro cronológico mantenido por el agente principal al cerrar cada etapa
 
 **Pendientes**
 - Checkpoint humano sobre supuestos y criterios.
+
+## 2026-11-05 — Checkpoint 1 (decisión humana)
+- El autor revisó la especificación v1 y **confirmó sin cambios** S3 (rechazar inicio en el pasado), S4 (duración máx. 12 h) y RN1 (ID exacto, `mic-01` se rechaza).
+- Indicación del autor: "realizalo pudiendo cumplir todas las exigencias del challenge-agents.pdf".
+
+## 2026-11-05 — Etapa 2 / Episodio 1: implementación (agente principal)
+
+**Hecho**
+- `src/reservas/`: `dominio.py` (reglas puras, `se_superpone`), `repositorio.py` (SQLite, `BEGIN IMMEDIATE`), `servicio.py`, `cli.py`, `errores.py`, `inventario.py`.
+- `data/inventario.json`, `pyproject.toml`, `requirements-dev.txt` (lock con versiones fijadas).
+- `.venv` con pytest 9.2.0; instalación editable.
+
+**Verificación rápida (ejecutada, BD temporal, `RESERVAS_AHORA=2026-11-30 08:00`)**
+- Ejemplo de la consigna: MIC-01 10:30–11:30 → `ERROR` exit 1; 11:00–12:00 → `CREADA R-0002`; MIC-02 10:00–11:00 → `CREADA R-0003`.
+- `cancelar R-0001` → `CANCELADA`; luego `disponibilidad MIC-01 10:00–11:00` → `DISPONIBLE`.
+
+**Decisiones técnicas**
+- ID `R-NNNN` derivado de `INTEGER PRIMARY KEY AUTOINCREMENT` (SQLite no reutiliza valores → S6), sin columna id duplicada.
+- La superposición se filtra en Python con `dominio.conflictos` sobre las activas de la unidad, en vez de un `WHERE` SQL equivalente, para que `se_superpone` sea la única comparación (regla 2 de CLAUDE.md).
+- El "ahora" se trunca a minutos (S2).
+
+**Control humano aplicado**
+- El autor rechazó por error el primer intento de commit de esta etapa y luego confirmó explícitamente "Hacé los commits igual".
+
+**Pendientes**
+- Acentos en consola Windows dependen de la codificación de la terminal (observado en Git Bash: `Mult�metro`). No afecta datos (UTF-8 en SQLite/JSON).

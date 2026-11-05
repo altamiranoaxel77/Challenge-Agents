@@ -59,4 +59,5 @@ svc.listar(unidad=None, estado=None)  -> list[Reserva]       # orden: inicio, id
   - `DISPONIBLE ...` o `NO DISPONIBLE ...` al consultar disponibilidad. Las dos respuestas son una consulta exitosa y salen con código `0`.
 - `1`: error de negocio o de validación. El mensaje se escribe en stderr y empieza con `ERROR:`.
 - `2`: uso incorrecto de argumentos (lo maneja argparse).
+- `reiniciar-datos` sin `--confirmar` no borra nada, escribe `ERROR:` en stderr y sale con código `1`.
 - `listar`: escribe una línea por reserva con el formato `R-0001  MIC-01  2026-12-01 10:00  2026-12-01 11:00  activa  Ana Ficticia`.

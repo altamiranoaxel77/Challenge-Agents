@@ -1,0 +1,9 @@
+# Dependencias de desarrollo con versiones fijadas (archivo de bloqueo).
+# Generado con: .venv/Scripts/python -m pip freeze --exclude-editable
+# El runtime de la aplicación usa solo la biblioteca estándar de Python.
+colorama==0.4.6
+iniconfig==2.3.1
+packaging==26.3
+pluggy==1.7.0
+Pygments==2.21.0
+pytest==9.2.0
