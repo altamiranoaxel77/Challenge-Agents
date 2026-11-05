@@ -1,6 +1,6 @@
 # Especificación — Sistema de reservas de laboratorio
 
-**Versión:** v1.1 · **Estado:** aprobada por el autor. v1 aprobada sin cambios (S3, S4 y RN1 confirmados); v1.1 aclara S6/S9 a pedido del autor tras el Episodio 2 · La evolución de este archivo se recupera con
+**Versión:** v1.2 · **Estado:** aprobada por el autor. v1 aprobada sin cambios (S3, S4 y RN1 confirmados); v1.1 aclara S6/S9 (Episodio 2); v1.2 incorpora los hallazgos aceptados del Episodio 3 · La evolución de este archivo se recupera con
 `git log -p docs/especificacion.md`.
 
 ## 1. Problema
@@ -69,15 +69,17 @@ Resuelven aspectos que la consigna no especifica.
 
 | ID | Supuesto | Motivo |
 |---|---|---|
-| S1 | **Zona horaria:** todas las fechas son hora local del laboratorio (America/Argentina/Buenos_Aires, UTC−3, sin horario de verano). Se guardan sin offset. | Es un único laboratorio y una única sede. Evita conversiones innecesarias. |
-| S2 | **Formato:** `YYYY-MM-DD HH:MM`, con el minuto como resolución. No se aceptan segundos ni otros formatos. | No es ambiguo y se ordena bien como texto. |
+| S1 | **Zona horaria:** todas las fechas son hora local del laboratorio (America/Argentina/Buenos_Aires, UTC−3, sin horario de verano). Se guardan sin offset. El "ahora" se calcula como UTC−3 fijo, **independiente de la zona horaria de la PC**. | Es un único laboratorio y una única sede. Evita conversiones innecesarias. |
+| S2 | **Formato:** `YYYY-MM-DD HH:MM` exacto, con dígitos ASCII y el minuto como resolución. No se aceptan segundos, espacios alrededor ni otros formatos. | No es ambiguo y se ordena bien como texto. |
 | S3 | **Fechas pasadas:** se rechaza crear una reserva, o consultar disponibilidad, cuando `inicio` es anterior al momento actual. Una reserva que ya pasó se puede listar y cancelar. | No tiene sentido reservar hacia atrás. Cancelar una reserva vencida no perjudica a nadie. |
 | S4 | **Duración máxima:** 12 horas. La mínima es de 1 minuto, porque `inicio < fin`. | Evita bloqueos accidentales de días enteros. |
 | S5 | **Anticipación:** no hay límite máximo. | La consigna no lo pide. |
-| S6 | **IDs:** `R-0001`, `R-0002`, …, secuenciales y **nunca reutilizados, ni siquiera después de `reiniciar-datos`**: la numeración continúa (si la última fue `R-0003`, la siguiente es `R-0004`). | Son legibles y estables. Un ID viejo anotado en un mensaje o planilla nunca puede pasar a señalar otra reserva. |
-| S7 | **Solicitante:** texto libre de hasta 100 caracteres después del `strip()`. Siempre se usan nombres ficticios. | Evita datos reales. El límite sirve para validar algo razonable. |
+| S6 | **IDs:** `R-0001`, `R-0002`, …, secuenciales y **nunca reutilizados, ni siquiera después de `reiniciar-datos`**: la numeración continúa (si la última fue `R-0003`, la siguiente es `R-0004`). Solo se acepta la forma exacta: `R-1`, `R-00001` o `r-0001` no identifican a `R-0001`. | Son legibles y estables. Un ID viejo anotado en un mensaje o planilla nunca puede pasar a señalar otra reserva. |
+| S7 | **Solicitante:** texto libre de hasta 100 caracteres después del `strip()`. Se rechazan caracteres de control (saltos de línea, tabs) y los espacios internos repetidos se colapsan en uno. Siempre se usan nombres ficticios. | Evita datos reales. El límite sirve para validar algo razonable. |
 | S8 | **El "ahora"** sale del reloj del sistema. Puede fijarse con la variable de entorno `RESERVAS_AHORA` (`YYYY-MM-DD HH:MM`) para pruebas reproducibles. | Las pruebas deben ser deterministas. |
-| S9 | **Reinicio de datos:** `reiniciar-datos --confirmar` **borra todas las reservas**. Sin `--confirmar` no hace nada. | Es la única operación destructiva y debe ser explícita. |
+| S9 | **Reinicio de datos:** `reiniciar-datos --confirmar` **borra todas las reservas**. Sin `--confirmar` no hace nada (ni siquiera crea el archivo de BD). | Es la única operación destructiva y debe ser explícita. |
+| S10 | **Filtros de `listar`:** `--unidad` aplica RN1 (una unidad desconocida es un error) y `--estado` solo acepta `activa` o `cancelada`. | Coherencia con RN1; evita listados vacíos engañosos por un typo. |
+| S11 | **Rutas:** inventario por defecto en `data/inventario.json` y BD en `data/reservas.db` del repositorio; se pueden cambiar con `RESERVAS_INVENTARIO` y `--db`/`RESERVAS_DB`. Un inventario o BD ausente/corrupto produce `ERROR:` y código 1, sin traceback. | Ejecución reproducible y errores comprensibles. |
 
 ## 7. Criterios de aceptación
 Salvo que se indique otra cosa, en todos los casos el "ahora" es `2026-11-30 08:00` y la base de datos arranca vacía.
@@ -111,3 +113,4 @@ Salvo que se indique otra cosa, en todos los casos el "ahora" es `2026-11-30 08:
 |---|---|---|
 | v1 | Versión inicial: R1–R6, RN1–RN11, S1–S9, CA-01…CA-15. | Aprobada por el autor sin cambios (checkpoint 1). |
 | v1.1 | S6 aclara que los IDs no se reutilizan tras `reiniciar-datos`; nuevo CA-16. | El subagente `redactor-pruebas` detectó la ambigüedad entre S6 y S9 (Episodio 2) y el autor eligió aclararla. |
+| v1.2 | S1 (UTC−3 fijo), S2 (formato exacto ASCII), S6 (ID canónico), S7 (sin caracteres de control), S9 (sin efectos sin `--confirmar`), nuevos S10 y S11. | Hallazgos del subagente `revisor-reglas` aceptados por el autor (Episodio 3). |

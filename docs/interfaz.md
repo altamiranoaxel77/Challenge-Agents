@@ -36,6 +36,7 @@ svc.listar(unidad=None, estado=None)  -> list[Reserva]       # orden: inicio, id
   - `ErrorValidacion` y `UnidadDesconocida` heredan de `ReservaError`. `UnidadDesconocida` además es subclase de `ErrorValidacion`.
   - `Superposicion` hereda de `ReservaError` y expone `.conflictos`.
   - `ReservaNoEncontrada` y `ReservaYaCancelada` heredan de `ReservaError`.
+  - `ErrorAlmacenamiento` hereda de `ReservaError`: inventario o base de datos ausente, ilegible o corrupta.
 
 ## CLI: `python -m reservas`
 
@@ -50,7 +51,8 @@ svc.listar(unidad=None, estado=None)  -> list[Reserva]       # orden: inicio, id
 
 **Opciones globales y variables de entorno**
 - `--db RUTA`, o la variable de entorno `RESERVAS_DB`. Valor por defecto: `data/reservas.db`.
-- `RESERVAS_AHORA="YYYY-MM-DD HH:MM"` fija el "ahora".
+- `RESERVAS_AHORA="YYYY-MM-DD HH:MM"` fija el "ahora". Sin ella, el "ahora" es la hora actual en UTC−3.
+- `RESERVAS_INVENTARIO=RUTA` cambia el inventario. Valor por defecto: `data/inventario.json`.
 
 **Salida y códigos de salida**
 - `0`: la operación salió bien. El primer token de la línea de resultado es:
@@ -60,4 +62,8 @@ svc.listar(unidad=None, estado=None)  -> list[Reserva]       # orden: inicio, id
 - `1`: error de negocio o de validación. El mensaje se escribe en stderr y empieza con `ERROR:`.
 - `2`: uso incorrecto de argumentos (lo maneja argparse).
 - `reiniciar-datos` sin `--confirmar` no borra nada, escribe `ERROR:` en stderr y sale con código `1`.
-- `listar`: escribe una línea por reserva con el formato `R-0001  MIC-01  2026-12-01 10:00  2026-12-01 11:00  activa  Ana Ficticia`.
+- `listar`: escribe una línea por reserva con el formato `R-0001  MIC-01  2026-12-01 10:00  2026-12-01 11:00  activa  Ana Ficticia` (campos separados por exactamente dos espacios). Si no hay reservas, escribe `(sin reservas)`. `--unidad` desconocida produce `ERROR:` y código `1`.
+- `inventario`: una línea por unidad, `MIC-01  Microscopio digital`. No abre ni crea la BD.
+- `disponibilidad` con conflictos: después de `NO DISPONIBLE ...`, una línea `  conflicto: <línea de listar>` por cada reserva activa en conflicto.
+- `cancelar`: `CANCELADA <línea de listar>  (cancelada_en YYYY-MM-DD HH:MM:SS)`.
+- `reiniciar-datos --confirmar`: `REINICIADO: se borraron N reservas de <ruta>`. Sin `--confirmar` no abre ni crea la BD.

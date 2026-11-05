@@ -33,7 +33,7 @@ class ServicioReservas:
     ):
         self._unidades = cargar_inventario(inventario_path)
         self._repo = Repositorio(db_path)
-        self._reloj = ahora or datetime.now
+        self._reloj = ahora or dominio.ahora_laboratorio  # S1: UTC-3 fijo
 
     def _ahora(self) -> datetime:
         # Resolución de minutos (S2): se descartan segundos del reloj.
@@ -96,6 +96,7 @@ class ServicioReservas:
         return reserva
 
     def listar(self, unidad: str | None = None, estado: str | None = None) -> list[Reserva]:
+        # S10: el filtro de unidad aplica RN1 (unidad exacta del inventario).
         if unidad is not None:
             self._validar_unidad(unidad)
         if estado is not None and estado not in ESTADOS:

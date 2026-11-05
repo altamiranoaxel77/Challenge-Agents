@@ -21,6 +21,10 @@ class Superposicion(ReservaError):
         self.conflictos = list(conflictos)
 
 
+class ErrorAlmacenamiento(ReservaError):
+    """Inventario o base de datos ausente, ilegible o corrupta (Episodio 3, hallazgos #1/#2)."""
+
+
 class ReservaNoEncontrada(ReservaError):
     """No existe una reserva con ese ID (RN11)."""
 

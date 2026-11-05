@@ -15,6 +15,7 @@ from datetime import datetime
 from pathlib import Path
 
 from reservas.dominio import ACTIVA, CANCELADA, Reserva
+from reservas.errores import ErrorAlmacenamiento
 
 _ESQUEMA = """
 CREATE TABLE IF NOT EXISTS reservas (
@@ -32,12 +33,16 @@ CREATE INDEX IF NOT EXISTS ix_reservas_unidad_estado ON reservas (unidad, estado
 """
 
 _FMT = "%Y-%m-%d %H:%M:%S"
-_PATRON_ID = re.compile(r"R-(\d+)")
+_PATRON_ID = re.compile(r"R-([0-9]{4,})")
 
 
 def id_a_num(reserva_id: str) -> int | None:
-    m = _PATRON_ID.fullmatch(reserva_id.strip()) if isinstance(reserva_id, str) else None
-    return int(m.group(1)) if m else None
+    """S6 / Episodio 3 (#8): solo la forma canónica exacta (`R-0001`); `R-1` o ` R-0001 ` no existen."""
+    m = _PATRON_ID.fullmatch(reserva_id) if isinstance(reserva_id, str) else None
+    if not m:
+        return None
+    num = int(m.group(1))
+    return num if num_a_id(num) == reserva_id else None
 
 
 def num_a_id(num: int) -> str:
@@ -65,12 +70,27 @@ def _a_reserva(fila: sqlite3.Row) -> Reserva:
     )
 
 
+@contextmanager
+def _traducir_errores(ruta_db: Path):
+    """Episodio 3 (#2): errores de E/S o SQLite -> ErrorAlmacenamiento (CLI: 'ERROR:' + exit 1)."""
+    try:
+        yield
+    except sqlite3.Error as e:
+        raise ErrorAlmacenamiento(f"Base de datos inaccesible o corrupta ({ruta_db}): {e}") from e
+    except OSError as e:
+        raise ErrorAlmacenamiento(f"No se pudo acceder a {ruta_db}: {e.strerror or e}") from e
+
+
 class Repositorio:
     def __init__(self, ruta_db: str | Path):
         self.ruta_db = Path(ruta_db)
-        self.ruta_db.parent.mkdir(parents=True, exist_ok=True)
-        with self._conectar() as con:
-            con.executescript(_ESQUEMA)
+        with _traducir_errores(self.ruta_db):
+            self.ruta_db.parent.mkdir(parents=True, exist_ok=True)
+            con = self._conectar()
+            try:
+                con.executescript(_ESQUEMA)
+            finally:
+                con.close()  # Episodio 3 (#12): cierre explícito
 
     def _conectar(self) -> sqlite3.Connection:
         # isolation_level=None: control manual de transacciones.
@@ -81,24 +101,29 @@ class Repositorio:
     @contextmanager
     def transaccion(self):
         """Transacción de escritura: BEGIN IMMEDIATE ... COMMIT / ROLLBACK."""
-        con = self._conectar()
-        try:
-            con.execute("BEGIN IMMEDIATE")
-            yield con
-            con.execute("COMMIT")
-        except BaseException:
-            con.execute("ROLLBACK")
-            raise
-        finally:
-            con.close()
+        with _traducir_errores(self.ruta_db):
+            con = self._conectar()
+            try:
+                # Episodio 3 (#3): BEGIN fuera del try del ROLLBACK; si falla, no hay nada que deshacer.
+                con.execute("BEGIN IMMEDIATE")
+                try:
+                    yield con
+                    con.execute("COMMIT")
+                except BaseException:
+                    if con.in_transaction:
+                        con.execute("ROLLBACK")
+                    raise
+            finally:
+                con.close()
 
     @contextmanager
     def lectura(self):
-        con = self._conectar()
-        try:
-            yield con
-        finally:
-            con.close()
+        with _traducir_errores(self.ruta_db):
+            con = self._conectar()
+            try:
+                yield con
+            finally:
+                con.close()
 
     # --- consultas (reciben una conexión para participar de la transacción) ---
     @staticmethod

@@ -10,13 +10,14 @@ import sys
 
 from reservas import dominio
 from reservas.errores import ReservaError
+from reservas.inventario import cargar_inventario
 from reservas.servicio import DB_POR_DEFECTO, ServicioReservas
 
 
 def _linea(r: dominio.Reserva) -> str:
     return (
         f"{r.id}  {r.unidad}  {dominio.formatear_fecha(r.inicio)}  "
-        f"{dominio.formatear_fecha(r.fin)}  {r.estado:<9}  {r.solicitante}"
+        f"{dominio.formatear_fecha(r.fin)}  {r.estado}  {r.solicitante}"
     )
 
 
@@ -61,13 +62,23 @@ def _reloj_desde_entorno():
 
 def ejecutar(args: argparse.Namespace) -> int:
     db = args.db or os.environ.get("RESERVAS_DB") or DB_POR_DEFECTO
-    svc = ServicioReservas(db, ahora=_reloj_desde_entorno())
     fmt = dominio.formatear_fecha
 
+    # Episodio 3 (#6): comandos que no deben tocar la BD se resuelven antes de abrirla.
     if args.comando == "inventario":
-        for u in svc.inventario():
+        for u in cargar_inventario().values():
             print(f"{u.id}  {u.equipo}")
-    elif args.comando == "disponibilidad":
+        return 0
+    if args.comando == "reiniciar-datos" and not args.confirmar:
+        print(
+            "ERROR: reiniciar-datos BORRA todas las reservas. "
+            "Repita con --confirmar para continuar. No se borró nada.",
+            file=sys.stderr,
+        )
+        return 1
+
+    svc = ServicioReservas(db, ahora=_reloj_desde_entorno())
+    if args.comando == "disponibilidad":
         disp = svc.disponibilidad(args.unidad, args.inicio, args.fin)
         rango = f"{disp.unidad} {fmt(disp.inicio)} -> {fmt(disp.fin)}"
         if disp.disponible:
@@ -89,13 +100,6 @@ def ejecutar(args: argparse.Namespace) -> int:
         if not reservas:
             print("(sin reservas)")
     elif args.comando == "reiniciar-datos":
-        if not args.confirmar:
-            print(
-                "ERROR: reiniciar-datos BORRA todas las reservas. "
-                "Repita con --confirmar para continuar. No se borró nada.",
-                file=sys.stderr,
-            )
-            return 1
         borradas = svc.reiniciar_datos()
         print(f"REINICIADO: se borraron {borradas} reservas de {db}")
     return 0

@@ -10,7 +10,7 @@ Registro cronológico mantenido por el agente principal al cerrar cada etapa
 | 1. Especificación v1 | ✔ aprobada sin cambios | `docs: especificación v1` |
 | 2. Episodio 1 — implementación | ✔ hecho | `feat: implementación` |
 | 3. Episodio 2 — pruebas (redactor-pruebas) | ✔ hecho (corrección aplicada) | `d76aeb4` + `fix:` |
-| 4. Episodio 3 — revisión (revisor-reglas) | pendiente | |
+| 4. Episodio 3 — revisión (revisor-reglas) | ✔ hecho (13 hallazgos aceptados) | `fix: hallazgos del revisor` |
 | 5. Verificación (verificador) | pendiente | |
 | 6. Documentación final | pendiente | |
 | 7. Cierre y entrega | pendiente | |
@@ -90,3 +90,9 @@ Registro cronológico mantenido por el agente principal al cerrar cada etapa
 ## 2026-11-05 — Especificación v1.1 (decisión humana del Episodio 2)
 - S6 aclarado: los IDs no se reutilizan tras `reiniciar-datos`; nuevo CA-16. Historial de cambios agregado a la especificación (§9).
 - Prueba nueva `tests/test_cli.py::test_ca_16_ids_no_se_reutilizan_tras_reiniciar`, escrita por el agente principal. Ejecutada: `1 passed`. La implementación ya cumplía (AUTOINCREMENT de SQLite); no hubo cambio de código.
+
+## 2026-11-05 — Etapa 4 / Episodio 3: revisión (subagente revisor-reglas)
+- Subagente de solo lectura. Informó 13 hallazgos (0 de severidad alta, 2 media, 11 baja). El agente principal reprodujo los hallazgos #1, #2, #7, #8 y #13. El #7 resultó correcto solo en parte: los dígitos no ASCII ya se rechazaban.
+- **Decisión humana:** se aceptan los 4 grupos (A, B, C y D). Detalle en `docs/evidencia/episodio3-revisor-reglas.md`.
+- Correcciones aplicadas. La especificación pasa a v1.2. Se agregó `tests/test_revision.py`.
+- Verificación: `.venv/Scripts/python -m pytest -q` → `138 passed in 154.13s`.
