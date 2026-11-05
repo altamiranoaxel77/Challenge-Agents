@@ -164,3 +164,12 @@ def test_ca_cli_uso_incorrecto_codigo_2(cli, args):
     """Sección 8 / interfaz: uso incorrecto de argumentos sale con código 2 (argparse)."""
     res = cli(*args)
     assert res.returncode == 2, (res.stdout, res.stderr)
+
+
+def test_ca_16_ids_no_se_reutilizan_tras_reiniciar(cli):
+    """CA-16 (spec v1.1, S6/S9): tras `reiniciar-datos --confirmar` la numeración continúa."""
+    _con_reservas(cli)  # crea R-0001 y R-0002
+    assert cli("reiniciar-datos", "--confirmar").returncode == 0
+    res = cli("reservar", "OSC-01", "Dana Ficticia", "2026-12-02 09:00", "2026-12-02 10:00")
+    assert res.returncode == 0, res.stderr
+    assert res.stdout.strip().split()[:2] == ["CREADA", "R-0003"]

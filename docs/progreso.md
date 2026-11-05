@@ -86,3 +86,7 @@ Registro cronológico mantenido por el agente principal al cerrar cada etapa
 **Corrección y verificación**
 - `dominio.conflictos` y `Disponibilidad.conflictos` ahora son `list`.
 - `.venv/Scripts/python -m pytest -q` → `114 passed in 138.24s`.
+
+## 2026-11-05 — Especificación v1.1 (decisión humana del Episodio 2)
+- S6 aclarado: los IDs no se reutilizan tras `reiniciar-datos`; nuevo CA-16. Historial de cambios agregado a la especificación (§9).
+- Prueba nueva `tests/test_cli.py::test_ca_16_ids_no_se_reutilizan_tras_reiniciar`, escrita por el agente principal. Ejecutada: `1 passed`. La implementación ya cumplía (AUTOINCREMENT de SQLite); no hubo cambio de código.
