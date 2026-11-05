@@ -7,7 +7,7 @@ Registro cronológico mantenido por el agente principal al cerrar cada etapa
 |---|---|---|
 | -1. Plan exportado (md/docx/pdf) | ✔ hecho | ver etapa 0 |
 | 0. Preparación del agente | ✔ hecho | `chore: preparación del agente` |
-| 1. Especificación v1 | pendiente | |
+| 1. Especificación v1 | ✔ hecho, en revisión humana | `docs: especificación v1` |
 | 2. Episodio 1 — implementación | pendiente | |
 | 3. Episodio 2 — pruebas (redactor-pruebas) | pendiente | |
 | 4. Episodio 3 — revisión (revisor-reglas) | pendiente | |
@@ -28,3 +28,17 @@ Registro cronológico mantenido por el agente principal al cerrar cada etapa
 **Pendientes**
 - pytest no está instalado globalmente → se instalará en `.venv` en la etapa 2.
 - Repositorio remoto en GitHub: lo crea el autor al final.
+
+## 2026-11-05 — Etapa 1: especificación v1
+
+**Hecho**
+- `docs/especificacion.md` v1: R1–R6, RN1–RN11, supuestos S1–S9, criterios CA-01…CA-15.
+- `docs/interfaz.md`: contrato API/CLI para que `redactor-pruebas` escriba pruebas sin leer `src/`.
+
+**Decisiones del agente (a validar por el humano)**
+- Disponibilidad lanza los mismos errores de validación que reservar (RN10) en lugar de responder "no disponible" ante entradas inválidas.
+- Pasado (S3) y duración máxima 12 h (S4) también aplican a la consulta de disponibilidad.
+- Unidad sensible a mayúsculas (RN1).
+
+**Pendientes**
+- Checkpoint humano sobre supuestos y criterios.
