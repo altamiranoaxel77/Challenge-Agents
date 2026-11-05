@@ -1,7 +1,7 @@
 """CA-13: consulta de disponibilidad (R2, RN10)."""
 import pytest
 
-from reservas.errores import ErrorValidacion, UnidadDesconocida
+from reservas.errores import ErrorValidacion, Superposicion, UnidadDesconocida
 
 
 def test_ca_13_no_disponible_informa_conflicto(svc_con_mic01):
@@ -50,7 +50,8 @@ def test_ca_13_disponible_equivale_a_reserva_aceptada(svc_con_mic01, inicio, fin
     if d.disponible:
         assert svc.reservar("MIC-01", "Beto Ficticio", inicio, fin).estado == "activa"
     else:
-        with pytest.raises(Exception):
+        # Auditoría de pruebas: antes era pytest.raises(Exception), demasiado amplio.
+        with pytest.raises(Superposicion):
             svc.reservar("MIC-01", "Beto Ficticio", inicio, fin)
 
 

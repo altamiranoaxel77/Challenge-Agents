@@ -104,3 +104,13 @@ Registro cronológico mantenido por el agente principal al cerrar cada etapa
 
 **Pendiente (autor)**
 - Crear el repositorio en GitHub, hacer el push de `main` y enviar el enlace a dgaifirst@gmail.com con el asunto «Challenge IA».
+
+## 2026-11-05 — Auditoría de pruebas (pedido del autor)
+- Se leyeron los 11 archivos de `tests/` contra las 7 verificaciones que exige la consigna. Todas están cubiertas.
+- Huecos encontrados y corregidos:
+  - un `pytest.raises(Exception)` demasiado amplio;
+  - no había pruebas ejecutadas de medianoche ni de año bisiesto;
+  - el mutante M2 sobrevivía, porque la regla RN7 no tenía prueba a nivel de dominio. Se agregó `tests/test_dominio.py`.
+- `tools/auditoria/mutantes.py`: 1.ª corrida 8/9, 2.ª corrida **9/9 detectados**.
+- `.venv/Scripts/python -m pytest -q` → `148 passed in 131.18s`.
+- Informe: `docs/auditoria-pruebas.md`.
