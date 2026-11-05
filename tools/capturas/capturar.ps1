@@ -12,9 +12,9 @@
 
 .EXAMPLE
   powershell -ExecutionPolicy Bypass -File tools\capturas\capturar.ps1
-  powershell -ExecutionPolicy Bypass -File tools\capturas\capturar.ps1 -Solo 04
+  powershell -ExecutionPolicy Bypass -File tools\capturas\capturar.ps1 -Solo 04,05,06
 #>
-param([string]$Solo = "")
+param([string[]]$Solo = @())
 
 $ErrorActionPreference = "Stop"
 $Raiz = (Resolve-Path (Join-Path $PSScriptRoot "..\..")).Path
@@ -72,11 +72,11 @@ $Db = Join-Path $Tmp "demo.db"
 
 # --- Escenarios: id, archivo, título, alto de ventana, cuerpo ---------------------------
 $Escenarios = @(
-    @{ Id = "01"; Archivo = "01-entorno.png"; Titulo = "Entorno y versiones"; Alto = 16; Cuerpo = @'
+    @{ Id = "01"; Archivo = "01-entorno.png"; Titulo = "Entorno y versiones"; Alto = 22; Cuerpo = @'
 Paso 'python --version'
 Paso 'python -m pytest --version'
-Paso 'git log -1 --format="%h %s (%ad)" --date=short'
-Paso 'git status --short --branch'
+Paso 'git -c color.ui=never log -1 --format="%h %s (%ad)" --date=short | Out-String -Stream'
+Paso 'git -c color.ui=never status --short --branch | Out-String -Stream'
 '@ },
     @{ Id = "02"; Archivo = "02-pytest-completo.png"; Titulo = "Suite completa de pruebas automaticas"; Alto = 14; Cuerpo = @'
 Paso 'python -m pytest -q -p no:cacheprovider'
@@ -84,7 +84,7 @@ Paso 'python -m pytest -q -p no:cacheprovider'
     @{ Id = "03"; Archivo = "03-pytest-verificaciones-consigna.png"; Titulo = "Pruebas de las 7 verificaciones exigidas por la consigna"; Alto = 36; Cuerpo = @'
 Paso 'python -m pytest -v -p no:cacheprovider --no-header -k "ca_01_crear_reserva_valida or ca_02_rechaza_superposicion_parcial or ca_04_limites_consecutivos or ca_04_consecutivos_cruzando or ca_05_unidades or ca_06_unidad_desconocida[XYZ or ca_07_solicitante_vacio_se_rechaza[espacios or ca_08_inicio_mal_formado[abc or ca_09_inicio_no_anterior or ca_11_cancelar_conserva or ca_11_cancelar_libera or ca_14_listar_en_nuevo_proceso or ca_14_intervalo_cancelado or ca_14_activa_sigue"'
 '@ },
-    @{ Id = "04"; Archivo = "04-ejemplo-consigna.png"; Titulo = "Ejemplo de la consigna: superposicion, consecutivos y otra unidad"; Alto = 24; Cuerpo = @'
+    @{ Id = "04"; Archivo = "04-ejemplo-consigna.png"; Titulo = "Ejemplo de la consigna: superposicion, consecutivos y otra unidad"; Alto = 30; Cuerpo = @'
 Remove-Item $env:RESERVAS_DB -ErrorAction SilentlyContinue
 Nota "BD de demostracion nueva: $env:RESERVAS_DB"
 Paso 'python -m reservas inventario'
@@ -99,14 +99,14 @@ Paso 'python -m reservas cancelar R-0001'
 Paso 'python -m reservas disponibilidad MIC-01 "2026-12-01 10:00" "2026-12-01 11:00"'
 Paso 'python -m reservas listar'
 '@ },
-    @{ Id = "06"; Archivo = "06-persistencia-nueva-ventana.png"; Titulo = "Persistencia: ventana y proceso NUEVOS sobre la misma BD"; Alto = 20; Cuerpo = @'
+    @{ Id = "06"; Archivo = "06-persistencia-nueva-ventana.png"; Titulo = "Persistencia: ventana y proceso NUEVOS sobre la misma BD"; Alto = 24; Cuerpo = @'
 Nota ("Proceso PowerShell nuevo, PID " + $PID + ". La BD fue escrita por las ventanas anteriores, ya cerradas.")
 Paso 'Get-Item $env:RESERVAS_DB | Select-Object Name, Length, LastWriteTime | Format-Table -AutoSize | Out-String -Stream | Where-Object { $_ }'
 Paso 'python -m reservas listar'
 Paso 'python -m reservas listar --estado cancelada'
 Paso 'python -m reservas disponibilidad MIC-01 "2026-12-01 11:30" "2026-12-01 12:30"'
 '@ },
-    @{ Id = "07"; Archivo = "07-entradas-invalidas.png"; Titulo = "Entradas invalidas: se rechazan con ERROR y exit 1"; Alto = 26; Cuerpo = @'
+    @{ Id = "07"; Archivo = "07-entradas-invalidas.png"; Titulo = "Entradas invalidas: se rechazan con ERROR y exit 1"; Alto = 36; Cuerpo = @'
 Paso 'python -m reservas reservar XYZ-99 "Ana Ficticia" "2026-12-01 10:00" "2026-12-01 11:00"'
 Paso 'python -m reservas reservar MIC-01 "   " "2026-12-03 10:00" "2026-12-03 11:00"'
 Paso 'python -m reservas reservar MIC-01 "Ana Ficticia" "2026-02-30 10:00" "2026-02-30 11:00"'
@@ -142,7 +142,7 @@ function Capturar-Ventana([IntPtr]$hwnd, [string]$destino) {
 }
 
 foreach ($e in $Escenarios) {
-    if ($Solo -and $e.Id -ne $Solo) { continue }
+    if ($Solo.Count -gt 0 -and $Solo -notcontains $e.Id) { continue }
     $marcador = Join-Path $Tmp ("listo-" + $e.Id)
     Remove-Item $marcador -ErrorAction SilentlyContinue
     $script = $Comun.Replace("__TITULO__", $e.Titulo).Replace("__ALTO__", [string]$e.Alto). `

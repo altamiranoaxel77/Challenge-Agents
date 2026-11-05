@@ -1,0 +1,6 @@
+# Dependencias SOLO para las herramientas de documentación (tools/informe).
+# No las necesita la aplicación ni sus pruebas.
+# Instalar: python -m venv .venv-tools && .venv-tools/Scripts/python -m pip install -r tools/requirements-tools.txt
+charset-normalizer==3.5.2
+pillow==13.0.0
+reportlab==5.1.0
