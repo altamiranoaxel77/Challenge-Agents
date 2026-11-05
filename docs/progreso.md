@@ -11,8 +11,8 @@ Registro cronológico mantenido por el agente principal al cerrar cada etapa
 | 2. Episodio 1 — implementación | ✔ hecho | `feat: implementación` |
 | 3. Episodio 2 — pruebas (redactor-pruebas) | ✔ hecho (corrección aplicada) | `d76aeb4` + `fix:` |
 | 4. Episodio 3 — revisión (revisor-reglas) | ✔ hecho (13 hallazgos aceptados) | `fix: hallazgos del revisor` |
-| 5. Verificación (verificador) | pendiente | |
-| 6. Documentación final | pendiente | |
+| 5. Verificación (verificador) | ✔ 138 passed + 9/9 pasos de persistencia | `docs: verificación` |
+| 6. Documentación final | ✔ hecho | `docs: README` |
 | 7. Cierre y entrega | pendiente | |
 
 ## 2026-11-05 — Etapas -1 y 0
@@ -96,3 +96,11 @@ Registro cronológico mantenido por el agente principal al cerrar cada etapa
 - **Decisión humana:** se aceptan los 4 grupos (A, B, C y D). Detalle en `docs/evidencia/episodio3-revisor-reglas.md`.
 - Correcciones aplicadas. La especificación pasa a v1.2. Se agregó `tests/test_revision.py`.
 - Verificación: `.venv/Scripts/python -m pytest -q` → `138 passed in 154.13s`.
+
+## 2026-11-05 — Etapas 5 y 6: verificación y documentación
+- El subagente `verificador` ejecutó sobre `7f502bd` (árbol limpio): `pytest -v` → `138 passed in 141.63s`. El procedimiento manual de persistencia dio 9/9 ✔. Solo escribió `docs/verificacion.md`; `git status` lo confirmó.
+- El agente principal re-ejecutó la secuencia de ejemplo del README en procesos separados y la salida coincide textualmente con la publicada.
+- Se escribieron `README.md` (4 secciones), `docs/agente.md` y `docs/decisiones.md` (ADR D1–D10 y los 3 episodios).
+
+**Pendiente (autor)**
+- Crear el repositorio en GitHub, hacer el push de `main` y enviar el enlace a dgaifirst@gmail.com con el asunto «Challenge IA».
